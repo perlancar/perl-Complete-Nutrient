@@ -24,7 +24,8 @@ $SPEC{':package'} = {
     summary => 'Completion routines related to nutrients',
 };
 
-state $nutrients;
+my $nutrients;
+my $symbol_replace_map;
 $SPEC{'complete_nutrient_symbol'} = {
     v => 1.1,
     summary => 'Complete from list of nutrient symbols',
@@ -66,6 +67,12 @@ sub complete_nutrient_symbol {
         my $td = TableData::Health::Nutrient->new;
         my @nutrients = $td->get_all_rows_hashref;
         $nutrients = \@nutrients;
+
+        $symbol_replace_map = {};
+        for my $row (@nutrients) {
+            next unless defined $row->{aliases} && length($row->{aliases});
+            $symbol_replace_map->{ $row->{symbol} } = [split /,/, lc($row->{aliases})];
+        }
     }
 
     my $symbols = [];
@@ -78,7 +85,10 @@ sub complete_nutrient_symbol {
 
     require Complete::Util;
     Complete::Util::complete_array_elem(
-        word=>$args{word}, array=>$symbols, summaries=>$summaries);
+        word=>$args{word},
+        array=>$symbols,
+        replace_map=>$symbol_replace_map,
+        summaries=>$summaries);
 }
 
 1;
