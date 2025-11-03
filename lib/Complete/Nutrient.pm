@@ -5,13 +5,13 @@ use strict;
 use warnings;
 use Log::ger;
 
+use Complete::Common qw(:all);
+use Exporter qw(import);
+
 # AUTHORITY
 # DATE
 # DIST
 # VERSION
-
-use Complete::Common qw(:all);
-use Exporter qw(import);
 
 our @EXPORT_OK = qw(
                        complete_nutrient_symbol
@@ -70,8 +70,8 @@ sub complete_nutrient_symbol {
 
         $symbol_replace_map = {};
         for my $row (@nutrients) {
-            next unless defined $row->{aliases} && length($row->{aliases});
-            $symbol_replace_map->{ $row->{symbol} } = [split /,/, lc($row->{aliases})];
+            next unless defined $row->{aliases};
+            $symbol_replace_map->{ $row->{symbol} } = [map {lc} @{ $row->{aliases} }];
         }
     }
 
